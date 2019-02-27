@@ -1,47 +1,14 @@
 import ext from "./utils/ext";
 
-// var extractTags = () => {
-//   var url = document.location.href;
-//   if(!url || !url.match(/^http/)) return;
-
-//   var data = {
-//     title: "",
-//     description: "",
-//     url: document.location.href
-//   }
-
-//   var ogTitle = document.querySelector("meta[property='og:title']");
-//   if(ogTitle) {
-//     data.title = ogTitle.getAttribute("content")
-//   } else {
-//     data.title = document.title
-//   }
-
-//   var descriptionTag = document.querySelector("meta[property='og:description']") || document.querySelector("meta[name='description']")
-//   if(descriptionTag) {
-//     data.description = descriptionTag.getAttribute("content")
-//   }
-
-//   return data;
-// }
-
-// function onRequest(request, sender, sendResponse) {
-//   if (request.action === 'process-page') {
-//     sendResponse(extractTags())
-//   }
-// }
-
-// ext.runtime.onMessage.addListener(onRequest);
-
 // content script - can interact with page
 
-console.log('setting up listener');
+console.log('content script', 'setting up listener');
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   let csh = new ContentScriptHandler();
   csh.handleIncomingMessage(request)
     .then((resp) => {
-      console.log('sending response', resp);
+      console.log('content script', 'sending response', resp);
       sendResponse(resp);
     });
   return true;
@@ -53,8 +20,12 @@ class ContentScriptHandler {
     this.MESSAGE_CLASS = 'prs-a-message';
   }
 
+  log() {
+    console.log('content script', arguments)
+  }
+
   handleIncomingMessage(request) {
-    console.log('contentscript:handleIncomingMessage');
+    this.log('handleIncomingMessage');
     let commentNodes = Array.from(document.querySelectorAll('.comment-body:not(.p-0):not(.js-preview-body)')); // github
     let bitBucketCommentNodes = document.querySelectorAll('.comment-content'); // bitbucket.org
     let hostedBitBucketCommentNodes = document.querySelectorAll('.message.markup'); // hosted bitbucket
@@ -68,21 +39,22 @@ class ContentScriptHandler {
     let commentTexts = this.getCommentsFromPage(commentNodes);
 
     if (request.start === 1) {
-      // return array of comment strings to background script
-      console.log('request.start is 1', commentTexts);
+      // Step 1: send array of comments to background script
+      this.log('request.start is 1', commentTexts);
       return Promise.resolve({response: commentTexts});
     } else {
-      // receive array of comment strings & scores from background script
-      console.log('Received message from the background script', request.done);
+      // Step 2: receive array of comments & scores from background script
+      //         and update the DOM using contentNode (since returned array only has text)
+      this.log('Received message from the background script', request.done);
       commentTexts.forEach((c, i) => {
-        console.log(i, request.done[i]);
-        let score = request.done[i].score,
+        const score = request.done[i].score,
           commentNode = commentNodes[i],
           html = this.generateHtmlNode(score);
 
-          commentNode.appendChild(html);
-        });
-        return Promise.resolve({response: 'Hi from content script - I\'m all done!'});
+        commentNode.appendChild(html);
+      });
+      // Step 2.5: tell the background script we're all done
+      return Promise.resolve({response: 'Hi from content script - I\'m all done!'});
     }
   }
 
