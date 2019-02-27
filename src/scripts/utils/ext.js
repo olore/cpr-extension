@@ -47,7 +47,8 @@ function Extension () {
       }
     } catch (e) {}
     try {
-      _this.api = browser.extension[api]
+      // _this.api = browser.extension[api]
+      _this[api] = browser.extension[api]
     } catch (e) {}
   })
 
