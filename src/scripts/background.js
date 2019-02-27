@@ -3,9 +3,10 @@ import ext from "./utils/ext";
 // background script - CANNOT interact with page
 console.log('bg page', 'initializing');
 
+// WE MAY NOT NEED BG PAGE???
 chrome.pageAction.onClicked.addListener(() => {
   let bw = new BackgroundWorker();
-  bw.handleButtonClick();
+  bw.onTextChange();
 });
 
 class BackgroundWorker {
@@ -19,7 +20,7 @@ class BackgroundWorker {
     console.log('bg page', arguments);
   }
 
-  handleButtonClick() {
+  onTextChange() {
     this.sendMessageToCurrentTab({ start: 1 })
       .then((resp) => {
         this.log("has comments", resp.response);
