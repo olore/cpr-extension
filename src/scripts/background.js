@@ -4,7 +4,7 @@ import ext from "./utils/ext";
 console.log('bg page', 'initializing');
 
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+ext.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // TODO: try using sender.tab to send message instead of seearching for active
   let bw = new BackgroundWorker();
   bw.handleIncomingMessage(request)

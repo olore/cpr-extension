@@ -1,4 +1,4 @@
-// import ext from "./utils/ext";
+import ext from "./utils/ext";
 import elementReady from 'element-ready';
 import domLoaded from 'dom-loaded';
 
@@ -54,7 +54,7 @@ function sendToBackgroundPage(commentText) {
 
   return new Promise((resolve) => {
     console.log('sending to bg page', commentText);
-    chrome.runtime.sendMessage({ commentText: commentText }, (resp) => {
+    ext.runtime.sendMessage({ commentText: commentText }, (resp) => {
       console.log('got a response!', resp)
       resolve(resp);
     });
