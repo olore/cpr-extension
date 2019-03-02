@@ -3,10 +3,13 @@ import ext from "./utils/ext";
 // background script - CANNOT interact with page
 console.log('bg page', 'initializing');
 
-// WE MAY NOT NEED BG PAGE???
-chrome.pageAction.onClicked.addListener(() => {
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // TODO: try using sender.tab to send message instead of seearching for active
   let bw = new BackgroundWorker();
-  bw.onTextChange();
+  bw.handleIncomingMessage(request)
+    .then(sendResponse);
+  return true; // Make it async so channel stays open for us to call sendResponse
 });
 
 class BackgroundWorker {
@@ -17,91 +20,71 @@ class BackgroundWorker {
 
   log() {
     // TODO check log level or something
-    console.log('bg page', arguments);
+    console.log('bg page', ...arguments);
   }
 
-  onTextChange() {
-    this.sendMessageToCurrentTab({ start: 1 })
-      .then((resp) => {
-        this.log("has comments", resp.response);
-        var documents = resp.response.map((comment, idx) => {
-          return {
-            "language": "en",
-            "id": idx,
-            "text": comment
-          };
+  handleIncomingMessage(request) {
+    if (request.commentText.length > 0) {
+      this.log('incoming text', request.commentText);
+      return this.doPost(request.commentText)
+        .then((data) => {
+          this.log('data from POST', data);
+          return data;
+        })
+        .catch((resp) => {
+          this.log('doPost failed', resp);
+          return { error: 123 };
         });
-        return documents;
-      })
-      .then((documents) => {
-        if (documents.length > 0) {
-          this.doPost(documents)
-            .then((data) => {
-              this.log('data from POST', data);
-              this.sendMessageToCurrentTab({ done: data.documents });
-            });
-        }
-      })
-      .catch((resp) => {
-        this.log("UH OH", resp);
-      });
+    } else {
+      this.log('no commentText, sending back empty array');
+      return Promise.resolve({ done: 123  });
+    }
   }
 
-  doPost(host, key, documents) {
-    this.log('doPost!');
-    let ret = {
-      documents: [{
-        score: .5,
-      },
-      {
-        score: .9
-      }]
-    };
-    return Promise.resolve(ret);
+  doPost(commentText) {
+    return Promise.resolve({score: 0.878787});
+    // let url = `http://localhost/cpr/score`;
+    // return fetch(url, {
+    //   method: "POST",
+    //   body: JSON.stringify({ 
+    //     text: commentText,
+    //     user: 'foo' // get github user id for tracking.. maybe allow "5 req per user per day" before message about $$
+    //   }),
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     }
+    //   })
+    //   .then((foo) => {
+    //     return foo.json();
+    //   })
+    //   .catch((err) => {
+    //     console.log(`error calling ${url}`, err );
+    //     return Promise.reject(err);
+    //   })
   }
-
-  sendMessageToCurrentTab(msg) {
-    return new Promise((resolve) => {
-      chrome.tabs.query({
-        currentWindow: true,
-        active: true
-      }, (tabs) => {
-        chrome.tabs.sendMessage(
-          tabs[0].id,
-          msg,
-          (response) => {
-            this.log('tab sendMessage response', response);
-            if (!response) {
-              this.log('tab sendMessage error', chrome.runtime.lastError);
-            }
-            resolve(response);
-          });
-      });
-    });
-  } 
 
 };
 
 
-// In Chrome, the page action button display logic happens here instead of manifest.json
-var matchingRule = {
-  conditions: [
-    new chrome.declarativeContent.PageStateMatcher({
-      pageUrl: { 
-        urlMatches: '.*\/pull\/.*'
-      },
-    }),
-    new chrome.declarativeContent.PageStateMatcher({
-      pageUrl: { 
-        urlMatches: '.*\/pull-requests\/.*'
-      },
-    })
-  ],
-  actions: [ new chrome.declarativeContent.ShowPageAction() ]
-};
+// // In Chrome, the page action button display logic happens here instead of manifest.json
+// var matchingRule = {
+//   conditions: [
+//     new chrome.declarativeContent.PageStateMatcher({
+//       pageUrl: { 
+//         urlMatches: '.*\/pull\/.*'
+//       },
+//     }),
+//     new chrome.declarativeContent.PageStateMatcher({
+//       pageUrl: { 
+//         urlMatches: '.*\/pull-requests\/.*'
+//       },
+//     })
+//   ],
+//   actions: [ new chrome.declarativeContent.ShowPageAction() ]
+// };
 
-chrome.runtime.onInstalled.addListener((details) => {
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
-    chrome.declarativeContent.onPageChanged.addRules([matchingRule]);
-  });
-});
+// chrome.runtime.onInstalled.addListener((details) => {
+//   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
+//     chrome.declarativeContent.onPageChanged.addRules([matchingRule]);
+//   });
+// });

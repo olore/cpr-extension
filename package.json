@@ -54,6 +54,8 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.2.5"
+    "@babel/polyfill": "^7.2.5",
+    "dom-loaded": "^1.0.1",
+    "element-ready": "^3.0.0"
   }
 }
