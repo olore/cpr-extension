@@ -42,25 +42,25 @@ class BackgroundWorker {
   }
 
   doPost(commentText) {
-    return Promise.resolve({score: 0.878787});
-    // let url = `http://localhost/cpr/score`;
-    // return fetch(url, {
-    //   method: "POST",
-    //   body: JSON.stringify({ 
-    //     text: commentText,
-    //     user: 'foo' // get github user id for tracking.. maybe allow "5 req per user per day" before message about $$
-    //   }),
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     }
-    //   })
-    //   .then((foo) => {
-    //     return foo.json();
-    //   })
-    //   .catch((err) => {
-    //     console.log(`error calling ${url}`, err );
-    //     return Promise.reject(err);
-    //   })
+    // return Promise.resolve({score: 0.878787});
+    let url = `http://localhost:3000/test`;
+    return fetch(url, {
+      method: "POST",
+      body: JSON.stringify({ 
+        text: commentText,
+        user: 'foo' // get github user id for tracking.. maybe allow "5 req per user per day" before message about $$
+      }),
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+      .then((foo) => {
+        return foo.json();
+      })
+      .catch((err) => {
+        console.log(`error calling ${url}`, err );
+        return Promise.reject(err);
+      })
   }
 
 };
