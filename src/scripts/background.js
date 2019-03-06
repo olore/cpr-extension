@@ -43,7 +43,9 @@ class BackgroundWorker {
 
   doPost(commentText) {
     // return Promise.resolve({score: 0.878787});
-    let url = `http://localhost:3000/test`;
+    // let url = `http://localhost:3000`;
+    let host = 'https://cpr-server.now.sh';
+    let url = `${host}/now-lambda.js`;
     return fetch(url, {
       method: "POST",
       body: JSON.stringify({ 
