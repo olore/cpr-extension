@@ -4,7 +4,7 @@
   </h1>
 
   <p>
-    <strong>An browser extension to analyze your comments on Pull Requests and Issues on github.com.
+    <strong>An browser extension to analyze your Pull Requests comments before you submit them.
     </strong>
   </p>
 </div>

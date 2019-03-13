@@ -66,27 +66,3 @@ class BackgroundWorker {
   }
 
 };
-
-
-// // In Chrome, the page action button display logic happens here instead of manifest.json
-// var matchingRule = {
-//   conditions: [
-//     new chrome.declarativeContent.PageStateMatcher({
-//       pageUrl: { 
-//         urlMatches: '.*\/pull\/.*'
-//       },
-//     }),
-//     new chrome.declarativeContent.PageStateMatcher({
-//       pageUrl: { 
-//         urlMatches: '.*\/pull-requests\/.*'
-//       },
-//     })
-//   ],
-//   actions: [ new chrome.declarativeContent.ShowPageAction() ]
-// };
-
-// chrome.runtime.onInstalled.addListener((details) => {
-//   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
-//     chrome.declarativeContent.onPageChanged.addRules([matchingRule]);
-//   });
-// });

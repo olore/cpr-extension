@@ -12,7 +12,7 @@ class CPRButton {
   // so we just wrap it :(
   constructor() {
     this.element = document.createElement('button');
-    this.element.className = 'btn btn-primary'; // match github styles
+    this.element.className = 'btn btn-primary cpr-button'; // match github styles
     this.element.innerText = 'Perform CPR';
     this.element.style = 'background-color: #59f3e6; background-image: linear-gradient(-180deg,#59f3e6,#28a7a1 90%);';
     this.element.addEventListener('click', this.onCprButtonClick); //TODO: debounce
@@ -39,6 +39,10 @@ class CPRButton {
 }
 
 function addButton() {
+  let existingBtn = document.querySelector('.cpr-button');
+  if (existingBtn !== null) {
+    existingBtn.remove();
+  }
   // get the last primary button 
   // TODO: can we just get the one that says "Comment"?
   let primaryButtons = Array.from(document.querySelectorAll('button.btn-primary'));
@@ -90,3 +94,9 @@ function safeElementReady(selector) {
 
 // wait for document loaded (and other github loads... see refined-github)
 safeElementReady('textarea#new_comment_field').then(addButton);
+
+// github has some weird page loading, so pay attention to pjax:end
+// thannks https://github.com/sindresorhus/refined-github/blob/a5fafc952ea9f48902f11bc86151e587522367f4/source/libs/features.tsx#L53
+document.addEventListener('pjax:end', () => {
+  safeElementReady('textarea#new_comment_field').then(addButton);
+});

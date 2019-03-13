@@ -1,4 +1,5 @@
-1. Firefox bg page is getting called 3 times
+1. Clean up console logs
+2. Firefox bg page is getting called 3 times
 ```
   bg page plugin constructor background.js:37:8
   bg page incoming text Test123 background.js:37:8
